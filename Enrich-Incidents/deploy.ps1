@@ -8,9 +8,9 @@ $suffix = Get-Random -Maximum 100
 $deploySuffix = $today + "_$suffix"
 
 # remote deploys
-$deploymentName = "" + $deploySuffix
-$remoteUrl = ""
-$localTemplate = 'enter.local.file.json'
+$deploymentName = "Enrich-Incidents" + $deploySuffix
+$remoteUrl = "https://raw.githubusercontent.com/JakeD-5Q/CustomPlaybooks/main/Enrich-Incidents/azuredeploy.json"
+$localTemplate = 'azuredeploy.parameters.json'
 New-AzResourceGroupDeployment -Name $deploymentName `
     -ResourceGroupName $ResourceGroup `
     -TemplateUri $remoteUrl `
