@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "PlaybookName": {
-            "value": "Notify-EmailAnalysts-NewIncident"
+            "value": "Notify-NewIncident"
         },
         "Company Name": {
             "value": "Company" 

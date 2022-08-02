@@ -20,7 +20,7 @@
     },
     "parameters": {
         "PlaybookName": {
-            "defaultValue": "Notify-EmailAnalysts-NewIncident",
+            "defaultValue": "Notify-NewIncident",
             "type": "string"
         },
         "Company Name": {
