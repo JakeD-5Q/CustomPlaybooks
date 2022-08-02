@@ -29,5 +29,5 @@ $remoteTemplate = ""
 New-AzResourceGroupDeployment -Name $deploymentName `
     -ResourceGroupName $ResourceGroup `
     -TemplateUri $remoteUrl `
-    -TemplateParameterFile $remoteTemplate
+    -TemplateParameterFile $remoteTemplate `
     -Verbose

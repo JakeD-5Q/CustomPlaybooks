@@ -11,7 +11,7 @@ $deploymentName = "basename_" + $deploySuffix
 $remoteUrl = ""
 $remoteTemplate = ''
 New-AzResourceGroupDeployment -Name $deploymentName `
-    -ResourceGroupName $myRg `
+    -ResourceGroupName $ResourceGroup `
     -TemplateUri $remoteUrl `
-    -TemplateParameterFile $remoteTemplate
+    -TemplateParameterFile $remoteTemplate `
     -Verbose

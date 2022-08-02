@@ -8,11 +8,11 @@ $suffix = Get-Random -Maximum 100
 $deploySuffix = $today + "_$suffix"
 
 # remote deploys
-$deploymentName = "Notify-NewIncident_" + $deploySuffix
-$remoteUrl = "https://raw.githubusercontent.com/JakeD-5Q/SentinelPlaybooks/main/Notify-EmailAnalysts-NewIncident/azuredeploy.json"
+$deploymentName = "" + $deploySuffix
+$remoteUrl = ""
 $localTemplate = 'enter.local.file.json'
 New-AzResourceGroupDeployment -Name $deploymentName `
     -ResourceGroupName $ResourceGroup `
     -TemplateUri $remoteUrl `
-    -TemplateParameterFile $localTemplate
+    -TemplateParameterFile $localTemplate `
     -Verbose
