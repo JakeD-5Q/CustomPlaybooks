@@ -10,7 +10,7 @@ $ID = (Get-AzResource -Name $PlaybookName -ResourceType Microsoft.Logic/workflow
 $MIGuid = $ID
 $MI = Get-AzureADServicePrincipal -ObjectId $MIGuid
 
-# Collect Forensic package
+# Collect Forensic package~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 $MDEAppId = "fc780465-2017-40d4-a0c5-307022471b92"
 $PermissionName = "Machine.CollectForensics" 
 
@@ -19,7 +19,7 @@ $AppRole = $MDEServicePrincipal.AppRoles | Where-Object { $_.Value -eq $Permissi
 New-AzureAdServiceAppRoleAssignment -ObjectId $MI.ObjectId -PrincipalId $MI.ObjectId `
     -ResourceId $MDEServicePrincipal.ObjectId -Id $AppRole.Id
 
-# Run Anti-Virus Scan
+# Run Anti-Virus Scan~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 $MDEAppId = "fc780465-2017-40d4-a0c5-307022471b92"
 $PermissionName = "Machine.Scan" 
 
@@ -38,7 +38,7 @@ $AppRole = $MDEServicePrincipal.AppRoles | Where-Object { $_.Value -eq $Permissi
 New-AzureAdServiceAppRoleAssignment -ObjectId $MI.ObjectId -PrincipalId $MI.ObjectId `
     -ResourceId $MDEServicePrincipal.ObjectId -Id $AppRole.Id
 
-# Automated Investigation
+# Automated Investigatione~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 $MDEAppId = "fc780465-2017-40d4-a0c5-307022471b92"
 $PermissionName = "Alert.ReadWrite.All" 
 
