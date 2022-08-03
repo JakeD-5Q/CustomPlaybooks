@@ -20,13 +20,13 @@
     },
     "parameters": {
         "PlaybookName": {
-            "defaultValue": "Enrich-AutoClose-EmailIncidents",
+            "defaultValue": "Enrich-EmailIncidents",
             "type": "string"
         },
-        "Resource Name": {
+        "Workspace Name": {
             "type": "string",
             "metadata": {
-                "description": "Enter value for Resource Name"
+                "description": "Enter value for Workspace Name"
             }
         }
     },
@@ -46,8 +46,8 @@
                             "defaultValue": {},
                             "type": "Object"
                         },
-                        "Resource Name": {
-                            "defaultValue": "[parameters('Resource Name')]",
+                        "Workspace Name": {
+                            "defaultValue": "[parameters('Workspace Name')]",
                             "type": "string"
                         }
                     },
@@ -99,7 +99,7 @@
                                                 },
                                                 "host": {
                                                     "connection": {
-                                                        "name": "@parameters('$connections')['azuresentinel_2']['connectionId']"
+                                                        "name": "@parameters('$connections')['azuresentinel']['connectionId']"
                                                     }
                                                 },
                                                 "method": "post",
@@ -123,7 +123,7 @@
                                                 },
                                                 "host": {
                                                     "connection": {
-                                                        "name": "@parameters('$connections')['azuresentinel_2']['connectionId']"
+                                                        "name": "@parameters('$connections')['azuresentinel']['connectionId']"
                                                     }
                                                 },
                                                 "method": "put",
@@ -163,7 +163,7 @@
                                                             },
                                                             "host": {
                                                                 "connection": {
-                                                                    "name": "@parameters('$connections')['azuresentinel_2']['connectionId']"
+                                                                    "name": "@parameters('$connections')['azuresentinel']['connectionId']"
                                                                 }
                                                             },
                                                             "method": "post",
@@ -331,7 +331,7 @@
                                                             },
                                                             "host": {
                                                                 "connection": {
-                                                                    "name": "@parameters('$connections')['azuresentinel_2']['connectionId']"
+                                                                    "name": "@parameters('$connections')['azuresentinel']['connectionId']"
                                                                 }
                                                             },
                                                             "method": "put",
@@ -924,11 +924,6 @@
                                         "type": "ManagedServiceIdentity"
                                     }
                                 }
-                            },
-                            "azuresentinel_2": {
-                                "connectionId": "/subscriptions/a1a21640-263b-45e1-9ad1-be5b4e1eb6ad/resourceGroups/5Q-RG-Playbooks/providers/Microsoft.Web/connections/azuresentinel-4",
-                                "connectionName": "azuresentinel-4",
-                                "id": "/subscriptions/a1a21640-263b-45e1-9ad1-be5b4e1eb6ad/providers/Microsoft.Web/locations/centralus/managedApis/azuresentinel"
                             }
                         }
                     }
@@ -940,7 +935,7 @@
             "tags": {
                 "AutomationRule": "Enrich-EmailIncidents",
                 "Note": "Complete, use this one",
-                "hidden-SentinelTemplateName": "5QC.Enrich-AutoClose-EmailIncidents",
+                "hidden-SentinelTemplateName": "Enrich-EmailIncidents",
                 "hidden-SentinelTemplateVersion": "1.0"
             },
             "identity": {
