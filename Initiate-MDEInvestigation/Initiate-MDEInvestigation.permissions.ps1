@@ -38,7 +38,7 @@ $AppRole = $MDEServicePrincipal.AppRoles | Where-Object { $_.Value -eq $Permissi
 New-AzureAdServiceAppRoleAssignment -ObjectId $MI.ObjectId -PrincipalId $MI.ObjectId `
     -ResourceId $MDEServicePrincipal.ObjectId -Id $AppRole.Id
 
-# Automated Investigatione~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Automated Investigation~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 $MDEAppId = "fc780465-2017-40d4-a0c5-307022471b92"
 $PermissionName = "Alert.ReadWrite.All" 
 

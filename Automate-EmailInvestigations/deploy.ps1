@@ -8,10 +8,10 @@ $deploySuffix = $today + "_$suffix"
 
 # remote deploys
 $deploymentName = "" + $deploySuffix
-$remoteUrl = ""
-$remoteTemplate = ''
+$remoteUrl = "https://raw.githubusercontent.com/JakeD-5Q/CustomPlaybooks/main/Automate-EmailInvestigations/azuredeploy.json"
+$localTemplate = 'investigateEmails.parameters.json'
 New-AzResourceGroupDeployment -Name $deploymentName `
     -ResourceGroupName $ResourceGroup `
     -TemplateUri $remoteUrl `
-    -TemplateParameterFile $remoteTemplate `
+    -TemplateParameterFile $localTemplate `
     -Verbose
