@@ -2,8 +2,8 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "metadata": {
-        "title": "Automate-Email-Investigation",
-        "description": "Parse entity data such that each column is available as a dynamic variable",
+        "title": "Automate-EmailInvestigations",
+        "description": "",
         "prerequisites": "",
         "postDeployment": [],
         "prerequisitesDeployTemplateFile": "",
@@ -15,18 +15,18 @@
             "armtemplate": "Generated from https://github.com/Azure/Azure-Sentinel/tree/master/Tools/Playbook-ARM-Template-Generator"
         },
         "author": {
-            "name": ""
+            "name": "Jake Derkowski"
         }
     },
     "parameters": {
         "PlaybookName": {
-            "defaultValue": "Automate-EmailInvestigations",
+            "defaultValue": "Enrich-EmailIncidents",
             "type": "string"
         },
-        "Resource Name": {
+        "Workspace Name": {
             "type": "string",
             "metadata": {
-                "description": "Enter value for Resource Name"
+                "description": "Enter value for Workspace Name"
             }
         }
     },
@@ -46,9 +46,9 @@
                             "defaultValue": {},
                             "type": "Object"
                         },
-                        "Resource Name": {
-                            "type": "string",
-                            "defaultValue": "[parameters('Resource Name')]"
+                        "Workspace Name": {
+                            "defaultValue": "[parameters('Workspace Name')]",
+                            "type": "string"
                         }
                     },
                     "triggers": {
@@ -935,7 +935,7 @@
             "tags": {
                 "AutomationRule": "Enrich-EmailIncidents",
                 "Note": "Complete, use this one",
-                "hidden-SentinelTemplateName": "Automate-EmailInvestigations",
+                "hidden-SentinelTemplateName": "Enrich-EmailIncidents",
                 "hidden-SentinelTemplateVersion": "1.0"
             },
             "identity": {

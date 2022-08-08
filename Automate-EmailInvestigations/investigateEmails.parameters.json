@@ -3,9 +3,9 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "PlaybookName": {
-            "value": "Automate-EmailInvestigations"
+            "value": "Enrich-EmailIncidents"
         },
-        "Resource Name": {
+        "Workspace Name": {
             "value": "" // TODO: Fill in parameter value
         }
     }

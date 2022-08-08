@@ -2,7 +2,7 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "metadata": {
-        "title": "",
+        "title": "Enrich-EmailIncidents",
         "description": "",
         "prerequisites": "",
         "postDeployment": [],
@@ -15,7 +15,7 @@
             "armtemplate": "Generated from https://github.com/Azure/Azure-Sentinel/tree/master/Tools/Playbook-ARM-Template-Generator"
         },
         "author": {
-            "name": ""
+            "name": "Jake Derkowski"
         }
     },
     "parameters": {
