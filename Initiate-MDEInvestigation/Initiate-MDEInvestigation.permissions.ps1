@@ -20,7 +20,7 @@ New-AzureAdServiceAppRoleAssignment -ObjectId $MI.ObjectId -PrincipalId $MI.Obje
     -ResourceId $MDEServicePrincipal.ObjectId -Id $AppRole.Id
 
 # Run Anti-Virus Scan~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-$MDEAppId = "fc780465-2017-40d4-a0c5-307022471b92"
+
 $PermissionName = "Machine.Scan" 
 
 $MDEServicePrincipal = Get-AzureADServicePrincipal -Filter "appId eq '$MDEAppId'"
@@ -39,7 +39,7 @@ New-AzureAdServiceAppRoleAssignment -ObjectId $MI.ObjectId -PrincipalId $MI.Obje
     -ResourceId $MDEServicePrincipal.ObjectId -Id $AppRole.Id
 
 # Automated Investigation~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-$MDEAppId = "fc780465-2017-40d4-a0c5-307022471b92"
+
 $PermissionName = "Alert.ReadWrite.All" 
 
 $MDEServicePrincipal = Get-AzureADServicePrincipal -Filter "appId eq '$MDEAppId'"
