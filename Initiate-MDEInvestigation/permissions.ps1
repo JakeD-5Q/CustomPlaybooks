@@ -4,10 +4,11 @@ param(
     [Parameter(Mandatory = $true)]$PlaybookName
 )
 
-# get the object id of the playbook
-$ID = (Get-AzResource -Name $PlaybookName -ResourceType Microsoft.Logic/workflows).Identity.PrincipalId
+Connect-AzureAD
 
-$MIGuid = $ID
+# get the object id of the playbook
+$MIGuid = (Get-AzResource -Name $PlaybookName -ResourceType Microsoft.Logic/workflows).Identity.PrincipalId
+
 $MI = Get-AzureADServicePrincipal -ObjectId $MIGuid
 
 # Collect Forensic package~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

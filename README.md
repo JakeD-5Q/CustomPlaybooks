@@ -46,14 +46,13 @@ All playbooks will have API connections that need to be updated. I plan to try t
 
 - [x] Add 'Deploy to Azure' buttons
 - [ ] Write README for all
-- [ ] Organize other playbooks into deployment groups
-- [ ] put the parameters file for each playbook into their respective group
-- [ ] Write a script to deploy these playbooks
+- [ ] Add parameter descriptions
 
 ### Buttons
 
 
 #### Automate-EmailInvestigations
+
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FJakeD-5Q%2FCustomPlaybooks%2Fmain%2FEnrich-Emails-AutoCloseSpam%2Fazuredeploy.json)
 
 #### Enrich-EmailIncidents
@@ -75,3 +74,9 @@ All playbooks will have API connections that need to be updated. I plan to try t
 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
+
+## Disclaimer
+
+Special thanks to the [Azure-Sentinel repository](https://github.com/Azure/Azure-Sentinel) for the inspiration and examples. There is part of this repository that I have reused (i.e. README content), I do not take credit for this. 
+
+Thank you to all of the contributors! 

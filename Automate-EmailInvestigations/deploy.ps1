@@ -6,10 +6,10 @@ $today = Get-Date -Format "MM-dd-yyyy"
 $suffix = Get-Random -Maximum 100
 $deploySuffix = $today + "_$suffix"
 
-# remote deploys
-$deploymentName = "" + $deploySuffix
+$Name = "AutomateEmailInvestigation"
+$deploymentName = $Name + $deploySuffix
 $remoteUrl = "https://raw.githubusercontent.com/JakeD-5Q/CustomPlaybooks/main/Automate-EmailInvestigations/azuredeploy.json"
-$localTemplate = 'investigateEmails.parameters.json'
+$localTemplate = "investigateEmails.parameters.json"
 New-AzResourceGroupDeployment -Name $deploymentName `
     -ResourceGroupName $ResourceGroup `
     -TemplateUri $remoteUrl `

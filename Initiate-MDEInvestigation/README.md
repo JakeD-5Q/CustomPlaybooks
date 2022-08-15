@@ -2,25 +2,41 @@
 
 This playbooks combines the Run-[MDEAntivirus](https://github.com/Azure/Azure-Sentinel/tree/master/Playbooks/Run-MDEAntivirus), [Start-MDEAutomatedInvestigation](https://github.com/Azure/Azure-Sentinel/tree/master/Playbooks/Start-MDEAutomatedInvestigation), and [Get-MDEInvestigationPackage](https://github.com/Azure/Azure-Sentinel/tree/master/Playbooks/Get-MDEInvestigationPackage) into one, easy-to-use, Alert-trigger playbook.
 
+
+## Quick Deployment
+
+After deployment, you can run this playbook manually on an alert or attach it to an analytics rule so it will run when an alert is created.
+
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FJakeD-5Q%2FCustomPlaybooks%2Fmain%2FInitiate-MDEInvestigation%2Fazuredeploy.json)
+
 ## Prerequisites
 
+You will need to assign this playbook with the following AAD permissions:
 
-[provide screenshot]()
+- Machine.CollectForensics
+- Machine.Scan
+- Machine.Read.All
+- Machine.ReadWrite.All
+- Alert.ReadWrite.All
+  script below
 
-## Usage
+```powershell
+# the AzureAD required permissions to perform MDE AV scans, collect forensic pkgs, start automated investigations
 
-For a given incident:
+param(
+    [Parameter(Mandatory = $true)]$PlaybookName
+)
 
-1. Go to "View full details"
-2. Click "View playbooks"
-3. Find this in the list
-4. Click "run"
-5. Go to the comments tab for the result links
+# get the object id of the playbook
+$MIGuid = (Get-AzResource -Name $PlaybookName -ResourceType Microsoft.Logic/workflows).Identity.PrincipalId
 
-## Screenshots
+$MI = Get-AzureADServicePrincipal -ObjectId $MIGuid
 
-## Deploy
+# Collect Forensic package~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+$MDEAppId = "fc780465-2017-40d4-a0c5-307022471b92"
+$PermissionName = "Machine.CollectForensics" 
 
+<<<<<<< Updated upstream
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FJakeD-5Q%2FCustomPlaybooks%2Fmain%2FInitiate-MDEInvestigation%2Fazuredeploy.json)
 
 ## Post Deploy
@@ -44,6 +60,8 @@ $MI = Get-AzureADServicePrincipal -ObjectId $MIGuid
 $MDEAppId = "fc780465-2017-40d4-a0c5-307022471b92"
 $PermissionName = "Machine.CollectForensics" 
 
+=======
+>>>>>>> Stashed changes
 $MDEServicePrincipal = Get-AzureADServicePrincipal -Filter "appId eq '$MDEAppId'"
 $AppRole = $MDEServicePrincipal.AppRoles | Where-Object { $_.Value -eq $PermissionName -and $_.AllowedMemberTypes -contains "Application" }
 New-AzureAdServiceAppRoleAssignment -ObjectId $MI.ObjectId -PrincipalId $MI.ObjectId `
@@ -76,4 +94,13 @@ $MDEServicePrincipal = Get-AzureADServicePrincipal -Filter "appId eq '$MDEAppId'
 $AppRole = $MDEServicePrincipal.AppRoles | Where-Object { $_.Value -eq $PermissionName -and $_.AllowedMemberTypes -contains "Application" }
 New-AzureAdServiceAppRoleAssignment -ObjectId $MI.ObjectId -PrincipalId $MI.ObjectId `
     -ResourceId $MDEServicePrincipal.ObjectId -Id $AppRole.Id
+<<<<<<< Updated upstream
 ```
+=======
+
+```
+
+
+## Screenshots
+[provide screenshot]()
+>>>>>>> Stashed changes
