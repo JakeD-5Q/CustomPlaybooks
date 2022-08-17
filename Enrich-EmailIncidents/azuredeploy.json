@@ -22,16 +22,10 @@
         "PlaybookName": {
             "defaultValue": "Enrich-EmailIncidents",
             "type": "string"
-        },
-        "Workspace Name": {
-            "type": "string",
-            "metadata": {
-                "description": "Enter value for Workspace Name"
-            }
         }
     },
     "variables": {
-        "SentinelConnectionName": "[concat('Sentinel-', parameters('PlaybookName'))]"
+        "MicrosoftSentinelConnectionName": "[concat('MicrosoftSentinel-', parameters('PlaybookName'))]"
     },
     "resources": [
         {
@@ -45,10 +39,6 @@
                         "$connections": {
                             "defaultValue": {},
                             "type": "Object"
-                        },
-                        "Workspace Name": {
-                            "defaultValue": "[parameters('Workspace Name')]",
-                            "type": "string"
                         }
                     },
                     "triggers": {
@@ -68,55 +58,113 @@
                         }
                     },
                     "actions": {
-                        "Filter_Url": {
+                        "Comment_message_info_table": {
                             "runAfter": {
-                                "Parse_related_entities": [
+                                "Create_message_info_table": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "body": {
+                                    "incidentArmId": "@triggerBody()?['object']?['id']",
+                                    "message": "<p>@{body('Create_message_info_table')}</p>"
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                    }
+                                },
+                                "method": "post",
+                                "path": "/Incidents/Comment"
+                            }
+                        },
+                        "Create_message_info_table": {
+                            "runAfter": {
+                                "Select_message_info": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Table",
+                            "inputs": {
+                                "format": "HTML",
+                                "from": "@body('Select_message_info')"
+                            }
+                        },
+                        "Filter_MailMessage": {
+                            "runAfter": {
+                                "Parse_relatedEntities": [
                                     "Succeeded"
                                 ]
                             },
                             "type": "Query",
                             "inputs": {
-                                "from": "@body('Parse_related_entities')",
-                                "where": "@equals(item()?['kind'], 'Url')"
+                                "from": "@body('Parse_relatedEntities')",
+                                "where": "@equals(item()['kind'], 'MailMessage')"
                             }
                         },
-                        "For_Url": {
-                            "foreach": "@body('Filter_Url')",
+                        "For_each": {
+                            "foreach": "@body('Filter_MailMessage')",
                             "actions": {
-                                "Condition": {
-                                    "actions": {
-                                        "Add_comment_to_incident_(V3)": {
-                                            "runAfter": {
-                                                "Tag_dangerous_entity_clicked": [
-                                                    "Succeeded"
-                                                ]
-                                            },
-                                            "type": "ApiConnection",
-                                            "inputs": {
-                                                "body": {
-                                                    "incidentArmId": "@body('Tag_dangerous_entity_clicked')?['id']",
-                                                    "message": "<p>There has been an URL that was clicked on from this email. Please investigate promptly.</p>"
-                                                },
-                                                "host": {
-                                                    "connection": {
-                                                        "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                "Set_OriginalDeliveryLocation": {
+                                    "runAfter": {
+                                        "Tag_delivery_status": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "SetVariable",
+                                    "inputs": {
+                                        "name": "OriginalDeliveryLocation",
+                                        "value": "@{item()?['properties']?['additionalData']?['OriginalDeliveryLocation']}"
+                                    }
+                                },
+                                "Tag_delivery_status": {
+                                    "runAfter": {},
+                                    "type": "ApiConnection",
+                                    "inputs": {
+                                        "body": {
+                                            "incidentArmId": "@triggerBody()?['object']?['id']",
+                                            "tagsToAdd": {
+                                                "TagsToAdd": [
+                                                    {
+                                                        "Tag": "Status:@{item()?['properties']?['deliveryAction']}"
                                                     }
-                                                },
-                                                "method": "post",
-                                                "path": "/Incidents/Comment"
+                                                ]
                                             }
                                         },
-                                        "Tag_dangerous_entity_clicked": {
+                                        "host": {
+                                            "connection": {
+                                                "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                            }
+                                        },
+                                        "method": "put",
+                                        "path": "/Incidents"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Filter_MailMessage": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach"
+                        },
+                        "For_each_ClickCount_value": {
+                            "foreach": "@variables('ClickCountArr')",
+                            "actions": {
+                                "Were_there_any_clicks": {
+                                    "actions": {
+                                        "Update_incident": {
                                             "runAfter": {},
                                             "type": "ApiConnection",
                                             "inputs": {
                                                 "body": {
-                                                    "incidentArmId": "@triggerBody()?['object']?['id']",
+                                                    "incidentArmId": "@body('Close_incidents_that_were_sent_to_junk_folder')?['id']",
                                                     "severity": "High",
                                                     "tagsToAdd": {
                                                         "TagsToAdd": [
                                                             {
-                                                                "Tag": "DANGEROUS-URL-CLICKED!"
+                                                                "Tag": "SuccessfulPhish!"
                                                             }
                                                         ]
                                                     }
@@ -131,285 +179,28 @@
                                             }
                                         }
                                     },
-                                    "runAfter": {
-                                        "Parse_additionalData": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "else": {
-                                        "actions": {
-                                            "Filter_MailMessage": {
-                                                "runAfter": {},
-                                                "type": "Query",
-                                                "inputs": {
-                                                    "from": "@body('Parse_related_entities')",
-                                                    "where": "@equals(item()['kind'], 'MailMessage')"
-                                                }
-                                            },
-                                            "For_each_MailMessage": {
-                                                "foreach": "@body('Filter_MailMessage')",
-                                                "actions": {
-                                                    "Add_comment_to_incident_(V3)_2": {
-                                                        "runAfter": {
-                                                            "Update_incident": [
-                                                                "Succeeded"
-                                                            ]
-                                                        },
-                                                        "type": "ApiConnection",
-                                                        "inputs": {
-                                                            "body": {
-                                                                "incidentArmId": "@triggerBody()?['object']?['id']",
-                                                                "message": "<p>@{body('Create_email_details_table')}</p>"
-                                                            },
-                                                            "host": {
-                                                                "connection": {
-                                                                    "name": "@parameters('$connections')['azuresentinel']['connectionId']"
-                                                                }
-                                                            },
-                                                            "method": "post",
-                                                            "path": "/Incidents/Comment"
-                                                        }
-                                                    },
-                                                    "Compose_email_details": {
-                                                        "runAfter": {
-                                                            "Set_DeliveryAction": [
-                                                                "Succeeded"
-                                                            ]
-                                                        },
-                                                        "type": "Compose",
-                                                        "inputs": {
-                                                            "OGDeliveryLocation": "@{body('Parse_properties')?['additionalData']?['OriginalDeliveryLocation']}",
-                                                            "Sender": "@{body('Parse_properties')?['p1Sender']}",
-                                                            "Threats": "@{body('Parse_properties')?['threats']}",
-                                                            "deliveryAction": "@{body('Parse_properties')?['deliveryAction']}",
-                                                            "recipient": "@{body('Parse_properties')?['recipient']}",
-                                                            "subject": "@{body('Parse_properties')?['subject']}"
-                                                        }
-                                                    },
-                                                    "Create_email_details_table": {
-                                                        "runAfter": {
-                                                            "Compose_email_details": [
-                                                                "Succeeded"
-                                                            ]
-                                                        },
-                                                        "type": "Table",
-                                                        "inputs": {
-                                                            "format": "HTML",
-                                                            "from": "@createArray(outputs('Compose_email_details'))"
-                                                        }
-                                                    },
-                                                    "Parse_properties": {
-                                                        "runAfter": {},
-                                                        "type": "ParseJson",
-                                                        "inputs": {
-                                                            "content": "@items('For_each_MailMessage')?['properties']",
-                                                            "schema": {
-                                                                "properties": {
-                                                                    "additionalData": {
-                                                                        "properties": {
-                                                                            "AdditionalActionsAndResults": {
-                                                                                "type": "string"
-                                                                            },
-                                                                            "AuthDetails": {
-                                                                                "type": "string"
-                                                                            },
-                                                                            "FirstSeen": {
-                                                                                "type": "string"
-                                                                            },
-                                                                            "OriginalDeliveryLocation": {
-                                                                                "type": "string"
-                                                                            },
-                                                                            "Source": {
-                                                                                "type": "string"
-                                                                            },
-                                                                            "SystemOverrides": {
-                                                                                "type": "string"
-                                                                            },
-                                                                            "Urn": {
-                                                                                "type": "string"
-                                                                            }
-                                                                        },
-                                                                        "type": "object"
-                                                                    },
-                                                                    "antispamDirection": {
-                                                                        "type": "string"
-                                                                    },
-                                                                    "deliveryAction": {
-                                                                        "type": "string"
-                                                                    },
-                                                                    "fileEntityIds": {
-                                                                        "type": "array"
-                                                                    },
-                                                                    "friendlyName": {
-                                                                        "type": "string"
-                                                                    },
-                                                                    "internetMessageId": {
-                                                                        "type": "string"
-                                                                    },
-                                                                    "language": {
-                                                                        "type": "string"
-                                                                    },
-                                                                    "networkMessageId": {
-                                                                        "type": "string"
-                                                                    },
-                                                                    "p1Sender": {
-                                                                        "type": "string"
-                                                                    },
-                                                                    "p1SenderDomain": {
-                                                                        "type": "string"
-                                                                    },
-                                                                    "p2Sender": {
-                                                                        "type": "string"
-                                                                    },
-                                                                    "p2SenderDisplayName": {
-                                                                        "type": "string"
-                                                                    },
-                                                                    "p2SenderDomain": {
-                                                                        "type": "string"
-                                                                    },
-                                                                    "receiveDate": {
-                                                                        "type": "string"
-                                                                    },
-                                                                    "recipient": {
-                                                                        "type": "string"
-                                                                    },
-                                                                    "senderIP": {
-                                                                        "type": "string"
-                                                                    },
-                                                                    "subject": {
-                                                                        "type": "string"
-                                                                    },
-                                                                    "threats": {
-                                                                        "items": {
-                                                                            "type": "string"
-                                                                        },
-                                                                        "type": "array"
-                                                                    },
-                                                                    "urls": {
-                                                                        "items": {
-                                                                            "type": "string"
-                                                                        },
-                                                                        "type": "array"
-                                                                    }
-                                                                },
-                                                                "type": "object"
-                                                            }
-                                                        }
-                                                    },
-                                                    "Set_DeliveryAction": {
-                                                        "runAfter": {
-                                                            "Parse_properties": [
-                                                                "Succeeded"
-                                                            ]
-                                                        },
-                                                        "type": "SetVariable",
-                                                        "inputs": {
-                                                            "name": "DeliveryAction",
-                                                            "value": "@body('Parse_properties')?['deliveryAction']"
-                                                        }
-                                                    },
-                                                    "Update_incident": {
-                                                        "runAfter": {
-                                                            "Create_email_details_table": [
-                                                                "Succeeded"
-                                                            ]
-                                                        },
-                                                        "type": "ApiConnection",
-                                                        "inputs": {
-                                                            "body": {
-                                                                "incidentArmId": "@triggerBody()?['object']?['id']",
-                                                                "tagsToAdd": {
-                                                                    "TagsToAdd": [
-                                                                        {
-                                                                            "Tag": "ClickCount: @{body('Parse_additionalData')?['ClickCount']}"
-                                                                        },
-                                                                        {
-                                                                            "Tag": "@variables('DeliveryAction')"
-                                                                        }
-                                                                    ]
-                                                                }
-                                                            },
-                                                            "host": {
-                                                                "connection": {
-                                                                    "name": "@parameters('$connections')['azuresentinel']['connectionId']"
-                                                                }
-                                                            },
-                                                            "method": "put",
-                                                            "path": "/Incidents"
-                                                        }
-                                                    }
-                                                },
-                                                "runAfter": {
-                                                    "Filter_MailMessage": [
-                                                        "Succeeded"
-                                                    ]
-                                                },
-                                                "type": "Foreach"
-                                            }
-                                        }
-                                    },
+                                    "runAfter": {},
                                     "expression": {
                                         "and": [
                                             {
-                                                "greater": [
-                                                    "@body('Parse_additionalData')?['ClickCount']",
-                                                    "0"
-                                                ]
+                                                "not": {
+                                                    "equals": [
+                                                        "@item()",
+                                                        "0"
+                                                    ]
+                                                }
                                             }
                                         ]
                                     },
                                     "type": "If"
-                                },
-                                "Parse_additionalData": {
-                                    "runAfter": {},
-                                    "type": "ParseJson",
-                                    "inputs": {
-                                        "content": "@items('For_Url')?['properties']?['additionalData']",
-                                        "schema": {
-                                            "properties": {
-                                                "ClickCount": {
-                                                    "type": "integer"
-                                                },
-                                                "EmailCount": {
-                                                    "type": "integer"
-                                                },
-                                                "FirstSeen": {
-                                                    "type": "string"
-                                                },
-                                                "Source": {
-                                                    "type": "string"
-                                                },
-                                                "Urn": {
-                                                    "type": "string"
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    }
                                 }
                             },
                             "runAfter": {
-                                "Filter_Url": [
+                                "was_message_sent_to_junk_or_user_inbox": [
                                     "Succeeded"
                                 ]
                             },
                             "type": "Foreach"
-                        },
-                        "Initialize_DeliveryAction": {
-                            "runAfter": {
-                                "Initialize_OriginalDeliveryLocation": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "InitializeVariable",
-                            "inputs": {
-                                "variables": [
-                                    {
-                                        "name": "DeliveryAction",
-                                        "type": "string"
-                                    }
-                                ]
-                            }
                         },
                         "Initialize_OriginalDeliveryLocation": {
                             "runAfter": {},
@@ -423,9 +214,25 @@
                                 ]
                             }
                         },
+                        "Initialize_variable": {
+                            "runAfter": {
+                                "Initialize_OriginalDeliveryLocation": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "ClickCountArr",
+                                        "type": "array"
+                                    }
+                                ]
+                            }
+                        },
                         "Parse_body": {
                             "runAfter": {
-                                "Initialize_DeliveryAction": [
+                                "Initialize_variable": [
                                     "Succeeded"
                                 ]
                             },
@@ -847,7 +654,7 @@
                                 }
                             }
                         },
-                        "Parse_related_entities": {
+                        "Parse_relatedEntities": {
                             "runAfter": {
                                 "Parse_body": [
                                     "Succeeded"
@@ -908,6 +715,200 @@
                                     "type": "array"
                                 }
                             }
+                        },
+                        "Select_message_info": {
+                            "runAfter": {
+                                "Filter_MailMessage": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Select",
+                            "inputs": {
+                                "from": "@body('Filter_MailMessage')",
+                                "select": {
+                                    "DeliveryAction": "@item()?['properties']?['deliveryAction']",
+                                    "PhishConfidenceLevel": "@item()?['properties']?['additionalData']?['PhishConfidenceLevel']",
+                                    "Recipient": "@item()?['properties']?['recipient']",
+                                    "Sender": "@item()?['properties']?['p1Sender']",
+                                    "Subject": "@item()?['properties']?['subject']"
+                                }
+                            }
+                        },
+                        "was_message_sent_to_junk_or_user_inbox": {
+                            "actions": {
+                                "Close_incidents_that_were_sent_to_junk_folder": {
+                                    "runAfter": {},
+                                    "type": "ApiConnection",
+                                    "inputs": {
+                                        "body": {
+                                            "classification": {
+                                                "ClassificationAndReason": "BenignPositive - SuspiciousButExpected",
+                                                "ClassificationReasonText": "This potential phishing email was never a threat because it was delivered to the junk folder and was never available to the user."
+                                            },
+                                            "incidentArmId": "@triggerBody()?['object']?['id']",
+                                            "severity": "Low",
+                                            "status": "Closed",
+                                            "tagsToAdd": {
+                                                "TagsToAdd": [
+                                                    {
+                                                        "Tag": "DeliveredtoJUNK"
+                                                    }
+                                                ]
+                                            }
+                                        },
+                                        "host": {
+                                            "connection": {
+                                                "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                            }
+                                        },
+                                        "method": "put",
+                                        "path": "/Incidents"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "For_each": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "else": {
+                                "actions": {
+                                    "Filter_Url": {
+                                        "runAfter": {},
+                                        "type": "Query",
+                                        "inputs": {
+                                            "from": "@body('Parse_relatedEntities')",
+                                            "where": "@equals(item()?['kind'], 'Url')"
+                                        }
+                                    },
+                                    "For_each_2": {
+                                        "foreach": "@body('Parse_Url')",
+                                        "actions": {
+                                            "Append_to_array_variable": {
+                                                "runAfter": {
+                                                    "tag_clickcount": [
+                                                        "Succeeded"
+                                                    ]
+                                                },
+                                                "type": "AppendToArrayVariable",
+                                                "inputs": {
+                                                    "name": "ClickCountArr",
+                                                    "value": "@items('For_each_2')?['properties']?['additionalData']?['ClickCount']"
+                                                }
+                                            },
+                                            "tag_clickcount": {
+                                                "runAfter": {},
+                                                "type": "ApiConnection",
+                                                "inputs": {
+                                                    "body": {
+                                                        "incidentArmId": "@triggerBody()?['object']?['id']",
+                                                        "tagsToAdd": {
+                                                            "TagsToAdd": [
+                                                                {
+                                                                    "Tag": "ClickCount: @{items('For_each_2')?['properties']?['additionalData']?['ClickCount']}"
+                                                                }
+                                                            ]
+                                                        }
+                                                    },
+                                                    "host": {
+                                                        "connection": {
+                                                            "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                                                        }
+                                                    },
+                                                    "method": "put",
+                                                    "path": "/Incidents"
+                                                }
+                                            }
+                                        },
+                                        "runAfter": {
+                                            "Parse_Url": [
+                                                "Succeeded"
+                                            ]
+                                        },
+                                        "type": "Foreach"
+                                    },
+                                    "Parse_Url": {
+                                        "runAfter": {
+                                            "Filter_Url": [
+                                                "Succeeded"
+                                            ]
+                                        },
+                                        "type": "ParseJson",
+                                        "inputs": {
+                                            "content": "@body('Filter_Url')",
+                                            "schema": {
+                                                "items": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "string"
+                                                        },
+                                                        "kind": {
+                                                            "type": "string"
+                                                        },
+                                                        "name": {
+                                                            "type": "string"
+                                                        },
+                                                        "properties": {
+                                                            "properties": {
+                                                                "additionalData": {
+                                                                    "properties": {
+                                                                        "ClickCount": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "EmailCount": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "FirstSeen": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "Source": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "Urn": {
+                                                                            "type": "string"
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                },
+                                                                "friendlyName": {
+                                                                    "type": "string"
+                                                                },
+                                                                "url": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "type": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "id",
+                                                        "name",
+                                                        "type",
+                                                        "kind",
+                                                        "properties"
+                                                    ],
+                                                    "type": "object"
+                                                },
+                                                "type": "array"
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "equals": [
+                                            "@variables('OriginalDeliveryLocation')",
+                                            "JunkFolder"
+                                        ]
+                                    }
+                                ]
+                            },
+                            "type": "If"
                         }
                     },
                     "outputs": {}
@@ -916,8 +917,8 @@
                     "$connections": {
                         "value": {
                             "azuresentinel": {
-                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('SentinelConnectionName'))]",
-                                "connectionName": "[variables('SentinelConnectionName')]",
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('MicrosoftSentinelConnectionName'))]",
+                                "connectionName": "[variables('MicrosoftSentinelConnectionName')]",
                                 "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/Azuresentinel')]",
                                 "connectionProperties": {
                                     "authentication": {
@@ -933,8 +934,6 @@
             "type": "Microsoft.Logic/workflows",
             "location": "[resourceGroup().location]",
             "tags": {
-                "AutomationRule": "Enrich-EmailIncidents",
-                "Note": "Complete, use this one",
                 "hidden-SentinelTemplateName": "Enrich-EmailIncidents",
                 "hidden-SentinelTemplateVersion": "1.0"
             },
@@ -943,17 +942,17 @@
             },
             "apiVersion": "2017-07-01",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/connections', variables('SentinelConnectionName'))]"
+                "[resourceId('Microsoft.Web/connections', variables('MicrosoftSentinelConnectionName'))]"
             ]
         },
         {
             "type": "Microsoft.Web/connections",
             "apiVersion": "2016-06-01",
-            "name": "[variables('SentinelConnectionName')]",
+            "name": "[variables('MicrosoftSentinelConnectionName')]",
             "location": "[resourceGroup().location]",
             "kind": "V1",
             "properties": {
-                "displayName": "[variables('SentinelConnectionName')]",
+                "displayName": "[variables('MicrosoftSentinelConnectionName')]",
                 "customParameterValues": {},
                 "parameterValueType": "Alternative",
                 "api": {

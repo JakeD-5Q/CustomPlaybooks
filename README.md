@@ -50,11 +50,6 @@ All playbooks will have API connections that need to be updated. I plan to try t
 
 ### Buttons
 
-
-#### Automate-EmailInvestigations
-
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FJakeD-5Q%2FCustomPlaybooks%2Fmain%2FEnrich-Emails-AutoCloseSpam%2Fazuredeploy.json)
-
 #### Enrich-EmailIncidents
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FJakeD-5Q%2FCustomPlaybooks%2Fmain%2FEnrich-Emails-AutoCloseSpam%2Fazuredeploy.json)

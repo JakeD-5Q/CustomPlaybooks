@@ -1,4 +1,4 @@
-# Enrich-Incidents 
+# Enrich-Incidents
 
 This playbook performs the job of several other playbooks but all in this one. These include:
 
@@ -9,19 +9,19 @@ This playbook performs the job of several other playbooks but all in this one. T
 - DNS VirusTotal enrichment (comment)
 - VirusTotal log creations
 - Ip GeoLocation (tag)
+- tag user accounts involved
 - Change severity if malicious entity is found
 
 ## Prerequisites
 
+## Quick Deployment **Deploy with incident trigger** (recommended)
 
-[provide screenshot]()
+After deployment, attach this playbook to an automation rule so it runs when the incident is created.
 
-## Usage
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FJakeD-5Q%2FCustomPlaybooks%2Fmain%2FEnrich-Incidents%2Fazuredeploy.json)
+
 
 ## Screenshots
 
-## Deploy
+[provide screenshot]()
 
-Must be attached to an automation rule for it to ve
-
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FJakeD-5Q%2FCustomPlaybooks%2Fmain%2FEnrich-Incidents%2Fazuredeploy.json)

@@ -2,11 +2,6 @@ param(
     [Parameter(Mandatory = $true)]$ResourceGroup
 )
 
-# deploy all of the playbooks in this repository
-param(
-    [Parameter(Mandatory = $true)]$ResourceGroup
-)
-
 # Connect to your Azure Active Directory
 Connect-AzureAD
 
@@ -19,10 +14,9 @@ if ($notPresent) {
     $Location = Read-Host "Enter the location:"
     
     New-AzResourceGroup -Name $ResourceGroup `
-        -Location $Location `
+        -Location $Location 
         # -Verbose
 }
-
 
 
 ## The following four lines only need to be declared once in your script.
