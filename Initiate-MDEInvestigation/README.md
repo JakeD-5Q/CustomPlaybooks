@@ -27,6 +27,8 @@ param(
     [Parameter(Mandatory = $true)]$PlaybookName
 )
 
+Connect-AzureAD
+
 # get the object id of the playbook
 $MIGuid = (Get-AzResource -Name $PlaybookName -ResourceType Microsoft.Logic/workflows).Identity.PrincipalId
 
@@ -36,32 +38,6 @@ $MI = Get-AzureADServicePrincipal -ObjectId $MIGuid
 $MDEAppId = "fc780465-2017-40d4-a0c5-307022471b92"
 $PermissionName = "Machine.CollectForensics" 
 
-<<<<<<< Updated upstream
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FJakeD-5Q%2FCustomPlaybooks%2Fmain%2FInitiate-MDEInvestigation%2Fazuredeploy.json)
-
-## Post Deploy
-
-You will have to run the following script to grant this service principal with the required permissions for it to perform the tasks described above. 
-
-```powershell
-# the AzureAD required permissions to perform MDE AV scans, collect forensic pkgs, start automated investigations
-
-param(
-    [Parameter(Mandatory = $true)]$PlaybookName
-)
-
-# get the object id of the playbook
-$ID = (Get-AzResource -Name $PlaybookName -ResourceType Microsoft.Logic/workflows).Identity.PrincipalId
-
-$MIGuid = $ID
-$MI = Get-AzureADServicePrincipal -ObjectId $MIGuid
-
-# Collect Forensic package~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-$MDEAppId = "fc780465-2017-40d4-a0c5-307022471b92"
-$PermissionName = "Machine.CollectForensics" 
-
-=======
->>>>>>> Stashed changes
 $MDEServicePrincipal = Get-AzureADServicePrincipal -Filter "appId eq '$MDEAppId'"
 $AppRole = $MDEServicePrincipal.AppRoles | Where-Object { $_.Value -eq $PermissionName -and $_.AllowedMemberTypes -contains "Application" }
 New-AzureAdServiceAppRoleAssignment -ObjectId $MI.ObjectId -PrincipalId $MI.ObjectId `
@@ -94,12 +70,7 @@ $MDEServicePrincipal = Get-AzureADServicePrincipal -Filter "appId eq '$MDEAppId'
 $AppRole = $MDEServicePrincipal.AppRoles | Where-Object { $_.Value -eq $PermissionName -and $_.AllowedMemberTypes -contains "Application" }
 New-AzureAdServiceAppRoleAssignment -ObjectId $MI.ObjectId -PrincipalId $MI.ObjectId `
     -ResourceId $MDEServicePrincipal.ObjectId -Id $AppRole.Id
-<<<<<<< Updated upstream
 ```
-=======
-
-```
-
 
 ## Screenshots
 [provide screenshot]()
