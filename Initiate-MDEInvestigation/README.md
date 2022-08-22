@@ -11,6 +11,15 @@ After deployment, you can run this playbook manually on an alert or attach it to
 
 ## Prerequisites
 
+### Parameters
+
+Configure parameters to get notification in desired Microsoft Teams channel/group about the investigations that were started, their status, and links to view the results. If done correctly, this is very useful to keep track of all investigations and provides quick and easy access.
+
+1. Teams Group ID
+2. Teams Channel ID
+
+[This blog](https://www.linkedin.com/pulse/3-ways-locate-microsoft-team-id-christopher-barber-/) shows some simple methods to get the Team Id. You will need the Team Id and Channel Id.
+
 You will need to assign this playbook with the following AAD permissions:
 
 - Machine.CollectForensics
@@ -73,5 +82,5 @@ New-AzureAdServiceAppRoleAssignment -ObjectId $MI.ObjectId -PrincipalId $MI.Obje
 ```
 
 ## Screenshots
+
 [provide screenshot]()
->>>>>>> Stashed changes
